@@ -1,0 +1,481 @@
+<!doctype html>
+<!--<html lang="en">-->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <title>Index</title>
+</head>
+<body>
+
+
+<header class="p-3 bg-dark text-white">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap">
+                    <use xlink:href="#bootstrap"/>
+                </svg>
+            </a>
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a href="#" class="nav-link px-0 text-white" th:utext="${message}">...</a></li>
+            </ul>
+            <div class="text-end">
+                <td><a href="/logout" class="btn btn-outline-light me-2" tabindex="-1" role="button"
+                       aria-disabled="false">LOGOUT</a></td>
+            </div>
+        </div>
+    </div>
+</header>
+
+<hr class="h1">
+
+<div class="container text-lg-start">
+    <div class="row align-items-start">
+        <div class="col-1">
+            <br/>
+            <a class="nav-link" href="/admin">Admin</a>
+            <br/>
+            <a class="nav-link" href="/user">User</a>
+        </div>
+        <div class="col">
+            <nav>
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home"
+                            type="button" role="tab" aria-controls="nav-home" aria-selected="true">Admin
+                    </button>
+                    <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile"
+                            type="button" role="tab" aria-controls="nav-profile" aria-selected="false">User
+                    </button>
+                </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab"
+                     tabindex="0">
+                    <hr class="h1">
+                    <h5>ADMIN PANEL</h5>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">First name</th>
+                            <th scope="col">Last name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Role</th>
+                            <th scope="col">Edit</th>
+                            <th scope="col">Delete</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="user : ${users}">
+                            <td th:utext="${user.getId}">...</td>
+                            <td th:utext="${user.getName}">...</td>
+                            <td th:utext="${user.getLastName}">...</td>
+                            <td th:utext="${user.getEmail}">...</td>
+                            <td th:utext="${user.getStringRoles}">...</td>
+                            <td><button id="edit-user" type="button" class="btn btn-primary" data-toggle="modal" data-target="#userEditDialog" th:data-userId="${user.getId}">EDIT</button></td>
+
+<!--                            <td><a th:href="@{/admin/deleteUser(id=${user.getId})}" class="btn btn-danger" tabindex="-1"-->
+<!--                                   role="button"-->
+<!--                                   aria-disabled="false">Delete</a></td>-->
+                            <td><button id="delete-user" type="button" class="btn btn-danger" data-toggle="modal" data-target="#userDeleteDialog" th:data-userId="${user.getId}">DELETE</button></td>
+
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab"
+                     tabindex="0">
+                    <div class="container">
+                        <h1>New User</h1>
+                        <form id="registrationForm" class="was-validated" th:action="@{/admin/addUser}"
+                              th:object="${user}" method="post">
+                            <div class="form-group">
+                                <label for="firstName">First name:</label>
+                                <input class="form-control is-invalid" type="text" id="firstName" th:field="*{name}"
+                                       placeholder="First name. Required field!" required>
+                                <div class="invalid-feedback" id="usernameFeedback"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last name:</label>
+                                <input class="form-control is-invalid" type="text" id="lastName" th:field="*{lastName}"
+                                       placeholder="Last name. Required field!" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email:</label>
+                                <input class="form-control is-invalid" type="email" id="email" th:field="*{email}"
+                                       placeholder="Email. Required field!" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password:</label>
+                                <input class="form-control is-invalid" type="password" id="password" th:field="*{password}"
+                                       placeholder="Password. Required field!" required>
+                            </div>
+                            <b/>
+                            <p>
+                            <div class="form-check">
+                                <label>Roles:
+                                    <input type="checkbox" name="roles"
+                                           th:each="role : ${roles}"
+                                           th:text="${role.roleName}"
+                                           th:value="${role.roleId}"
+                                           th:field="*{roles}"
+                                    />
+                                </label>
+                            </div>
+                            <div id="errorMessage" class="text-danger" style="display:none;"></div>
+                            <br/>
+                            <br/>
+                            </p>
+                            <button type="submit" class="btn btn-primary">Create</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Модальное окно  edit -->
+
+<div class="modal fade" id="userEditDialog" tabindex="-1" role="dialog" aria-labelledby="userEditDialogLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userEditDialogLabel">Edit user</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm" class="was-validated" th:action="@{/admin/editUser}"
+                      th:object="${user}" method="post">
+                    <input type="hidden" id="user-id" th:field="*{id}">
+                    <div class="form-group">
+                        <label for="user-name">First name:</label>
+                        <input type="text" class="form-control is-invalid" id="user-name" th:field="*{name}"
+                               placeholder="First name. Required field!" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-lastName">Last name:</label>
+                        <input type="text" class="form-control is-invalid" id="user-lastName" th:field="*{lastName}"
+                               placeholder="Last name. Required field!" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-email" class="col-form-label">Email:</label>
+                        <input  type="email" class="form-control is-invalid" id="user-email" th:field="*{email}"
+                               placeholder="Email. Required field!" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-password" class="col-form-label">Password:</label>
+                        <input type="text" class="form-control is-invalid" id="user-password" th:field="*{password}"
+                               placeholder="Password. Required field!" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-roles" class="col-form-label">ROLES:</label>
+                        <input type="text" class="form-control" id="user-roles" readonly>
+                    </div>
+                    <div class="form-check">
+                        <label>Roles:
+                            <input type="checkbox" name="roles"
+                                   th:each="role : ${roles}"
+                                   th:text="${role.roleName}"
+                                   th:value="${role.roleId}"
+                                   th:field="*{roles}"
+                            />
+                        </label>
+                    </div>
+                    <div id="errorEditMessage" class="text-danger" style="display:none;"></div>
+                    <br/>
+                    <button type="submit" class="btn btn-primary">EDIT</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно  Delete -->
+
+<div class="modal fade" id="userDeleteDialog" tabindex="-1" role="dialog" aria-labelledby="userDeleteDialogLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userDeleteDialogLabel">DELETE this user?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="deleteForm" >
+                    <input type="hidden" id="userDel-id" >
+                    <div class="form-group">
+                        <label for="user-name">First name:</label>
+                        <input type="text" class="form-control is-invalid" id="userDel-name"
+                               placeholder="First name. Required field!" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-lastName">Last name:</label>
+                        <input type="text" class="form-control is-invalid" id="userDel-lastName"
+                               placeholder="Last name. Required field!" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-email" class="col-form-label">Email:</label>
+                        <input  type="email" class="form-control is-invalid" id="userDel-email"
+                                placeholder="Email. Required field!" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-password" class="col-form-label">Password:</label>
+                        <input type="hidden" class="form-control is-invalid" id="userDel-password"
+                               placeholder="Password. Required field!" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="user-roles" class="col-form-label">ROLES:</label>
+                        <input type="text" class="form-control" id="userDel-roles" readonly>
+                    </div>
+
+                    <button id="delete-user-button" class="btn btn-danger" onclick="deleteUser('userDel-id')" >DELETE</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+</body>
+
+<!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"-->
+<!--        integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"-->
+<!--        crossorigin="anonymous"></script>-->
+<!--<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"-->
+<!--        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"-->
+<!--        crossorigin="anonymous"></script>-->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.min.js"
+        integrity="sha384-7qAoOXltbVP82dhxHAUje59V5r2YsVfBafyUDxEdApLPmcdhBPg1DKg1ERo0BZlK"
+        crossorigin="anonymous"></script>
+<!--<script src="https://code.jquery.com/jquery-3.3.1.min.js"-->
+<!--        integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT"-->
+<!--        crossorigin="anonymous"></script>-->
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"-->
+<!--        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"-->
+<!--        crossorigin="anonymous"></script>-->
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+<script>
+
+
+
+    function deleteUser(elementId) {
+        const element = document.getElementById(elementId);
+        const id = element.value;
+        if (id) {
+            fetch('/ajax/delete?id=' + id)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.isDelete) {
+                        window.location.href = "/admin";
+                    } else {
+                        feedback.textContent = "Удалить не получилось.";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    feedback.textContent = "Ошибка при удалении пользователя.";
+                });
+        }
+    }
+
+    // Получаем из базы юзера по id для редактирования
+
+    $('#userEditDialog').on('shown.bs.modal', function (event) {
+        let button = $(event.relatedTarget) // Button that triggered the modal
+        let userId = button.data('userid') // Extract info from data-* attributes
+
+        if (userId) {
+            $.get({
+                url: '/ajax/' + userId,
+                success: (data) => {
+                    let modal = $(this)
+                    modal.find('#user-id').val(data.id)
+                    modal.find('#user-name').val(data.username)
+                    modal.find('#user-lastName').val(data.lastName)
+                    modal.find('#user-email').val(data.email)
+                    modal.find('#user-password').val(data.password)
+                    modal.find('#user-roles').val(data.stringRoles)
+
+                },
+                error: (err) => {
+                    alert(err);
+                }
+            });
+        }
+    })
+
+    $('#userDeleteDialog').on('shown.bs.modal', function (event) {
+        let button = $(event.relatedTarget) // Button that triggered the modal
+        let userId = button.data('userid') // Extract info from data-* attributes
+
+        if (userId) {
+            $.get({
+                url: '/ajax/' + userId,
+                success: (data) => {
+                    let modal = $(this)
+                    modal.find('#userDel-id').val(data.id)
+                    modal.find('#userDel-name').val(data.username)
+                    modal.find('#userDel-lastName').val(data.lastName)
+                    modal.find('#userDel-email').val(data.email)
+                    modal.find('#userDel-roles').val(data.stringRoles)
+
+                },
+                error: (err) => {
+                    alert(err);
+                }
+            });
+        }
+    })
+
+    // $('#delete-user-button').click(function() {
+    //     let modal = $('#userDeleteDialog')
+    //     // let user = {
+    //     //     username: modal.find('#user-name').val(),
+    //     //     lastName: modal.find('#user-lastName').val(),
+    //     //     email: modal.find('#user-email').val(),
+    //     //     password: modal.find('#user-password').val(),
+    //     //
+    //     // };
+    //     // if (modal.find('#user-id').val()) {
+    //     //     user.id = modal.find('#user-id').val()
+    //     // }
+    //     $.get({
+    //         url: '/ajax/delete/' + userId,
+    //         success: (data) => {
+    //             let modal = $(this)
+    //             modal.find('#userDel-id').val(data.id)
+    //             modal.find('#userDel-name').val(data.username)
+    //             modal.find('#userDel-lastName').val(data.lastName)
+    //             modal.find('#userDel-email').val(data.email)
+    //             modal.find('#userDel-roles').val(data.stringRoles)
+    //
+    //         },
+    //         error: (err) => {
+    //             alert(err);
+    //         }
+    //     });
+    //
+    //     // modal.modal('hide');
+    // });
+
+
+
+    // Проверяем валидность чекбоксов и уникальность введенного имени при создании нового пользователя через AJAX
+
+    document.getElementById('registrationForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const username = document.getElementById('firstName').value;
+        const feedback = document.getElementById('usernameFeedback');
+        const form = this;
+
+        if (validateCreateCheckboxes()) {
+            fetch('/ajax/check-username?username=' + username)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.isUnique) {
+                        feedback.textContent = "Имя пользователя доступно.";
+                        feedback.classList.remove('d-block', 'text-danger');
+                        feedback.classList.add('d-block', 'text-success');
+                        form.submit();
+                    } else {
+                        feedback.textContent = "Имя пользователя уже занято.";
+                        feedback.classList.remove('d-block', 'text-success');
+                        feedback.classList.add('d-block', 'text-danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    feedback.textContent = "Ошибка при проверке имени пользователя.";
+                    feedback.classList.remove('d-block', 'text-success');
+                    feedback.classList.add('d-block', 'text-danger');
+                });
+        }
+    });
+
+    // Функция для проверки чекбоксов ролей при создании
+    function validateCreateCheckboxes() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        let isChecked = false;
+        checkboxes.forEach(function (checkbox) {
+            if (checkbox.checked) {
+                isChecked = true;
+            }
+        });
+
+        const errorMessage = document.getElementById('errorMessage');
+        if (!isChecked) {
+            errorMessage.textContent = 'Пожалуйста, выберите хотя бы одну роль.';
+            errorMessage.style.display = 'block';
+            return false;
+        } else {
+            errorMessage.style.display = 'none';
+            //alert('Чекбоксы выбраны!');
+            return true;
+        }
+    }
+
+    // Проверяем валидность чекбоксов при редактировании юзера
+
+    document.getElementById('editForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const form = this;
+
+        if (validateEditCheckboxes()) {
+            form.submit();
+        }
+    });
+
+    // Функция для проверки чекбоксов ролей при редактировании
+    function validateEditCheckboxes() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        let isChecked = false;
+        checkboxes.forEach(function (checkbox) {
+            if (checkbox.checked) {
+                isChecked = true;
+            }
+        });
+
+        const errorMessage = document.getElementById('errorEditMessage');
+        if (!isChecked) {
+            errorMessage.textContent = 'Пожалуйста, выберите хотя бы одну роль.';
+            errorMessage.style.display = 'block';
+            return false;
+        } else {
+            errorMessage.style.display = 'none';
+            return true;
+        }
+    }
+    // ======================================================================================
+
+
+</script>
+
+</html>
+
