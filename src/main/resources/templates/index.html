@@ -1,5 +1,4 @@
 <!doctype html>
-<!--<html lang="en">-->
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
@@ -33,9 +32,7 @@
         </div>
     </div>
 </header>
-
 <hr class="h1">
-
 <div class="container text-lg-start">
     <div class="row align-items-start">
         <div class="col-1">
@@ -66,6 +63,7 @@
                             <th scope="col">ID</th>
                             <th scope="col">First name</th>
                             <th scope="col">Last name</th>
+                            <th scope="col">Age</th>
                             <th scope="col">Email</th>
                             <th scope="col">Role</th>
                             <th scope="col">Edit</th>
@@ -77,14 +75,20 @@
                             <td th:utext="${user.getId}">...</td>
                             <td th:utext="${user.getName}">...</td>
                             <td th:utext="${user.getLastName}">...</td>
+                            <td th:utext="${user.getAge}">...</td>
                             <td th:utext="${user.getEmail}">...</td>
                             <td th:utext="${user.getStringRoles}">...</td>
-                            <td><button id="edit-user" type="button" class="btn btn-primary" data-toggle="modal" data-target="#userEditDialog" th:data-userId="${user.getId}">EDIT</button></td>
+                            <td>
+                                <button id="edit-user" type="button" class="btn btn-primary" data-toggle="modal"
+                                        data-target="#userEditDialog" th:data-userId="${user.getId}">EDIT
+                                </button>
+                            </td>
 
-<!--                            <td><a th:href="@{/admin/deleteUser(id=${user.getId})}" class="btn btn-danger" tabindex="-1"-->
-<!--                                   role="button"-->
-<!--                                   aria-disabled="false">Delete</a></td>-->
-                            <td><button id="delete-user" type="button" class="btn btn-danger" data-toggle="modal" data-target="#userDeleteDialog" th:data-userId="${user.getId}">DELETE</button></td>
+                            <td>
+                                <button id="delete-user" type="button" class="btn btn-danger" data-toggle="modal"
+                                        data-target="#userDeleteDialog" th:data-userId="${user.getId}">DELETE
+                                </button>
+                            </td>
 
                         </tr>
                         </tbody>
@@ -100,7 +104,6 @@
                                 <label for="firstName">First name:</label>
                                 <input class="form-control is-invalid" type="text" id="firstName" th:field="*{name}"
                                        placeholder="First name. Required field!" required>
-                                <div class="invalid-feedback" id="usernameFeedback"></div>
                             </div>
                             <div class="form-group">
                                 <label for="lastName">Last name:</label>
@@ -108,13 +111,20 @@
                                        placeholder="Last name. Required field!" required>
                             </div>
                             <div class="form-group">
+                                <label for="age">Age:</label>
+                                <input type="number" min="18" max="100" class="form-control is-invalid" id="age" th:field="*{age}"
+                                       placeholder="Age. Required field!" required>
+                            </div>
+                            <div class="form-group">
                                 <label for="email">Email:</label>
                                 <input class="form-control is-invalid" type="email" id="email" th:field="*{email}"
                                        placeholder="Email. Required field!" required>
+                                <div class="invalid-feedback" id="userEmailFeedback"></div>
                             </div>
                             <div class="form-group">
                                 <label for="password">Password:</label>
-                                <input class="form-control is-invalid" type="password" id="password" th:field="*{password}"
+                                <input class="form-control is-invalid" type="password" id="password"
+                                       th:field="*{password}"
                                        placeholder="Password. Required field!" required>
                             </div>
                             <b/>
@@ -145,7 +155,8 @@
 
 <!-- Модальное окно  edit -->
 
-<div class="modal fade" id="userEditDialog" tabindex="-1" role="dialog" aria-labelledby="userEditDialogLabel" aria-hidden="true">
+<div class="modal fade" id="userEditDialog" tabindex="-1" role="dialog" aria-labelledby="userEditDialogLabel"
+     aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -169,8 +180,13 @@
                                placeholder="Last name. Required field!" required>
                     </div>
                     <div class="form-group">
+                        <label for="user-age">Age:</label>
+                        <input type="number" min="18" max="100" class="form-control is-invalid" id="user-age" th:field="*{age}"
+                               placeholder="Age. Required field!" required>
+                    </div>
+                    <div class="form-group">
                         <label for="user-email" class="col-form-label">Email:</label>
-                        <input  type="email" class="form-control is-invalid" id="user-email" th:field="*{email}"
+                        <input type="email" class="form-control is-invalid" id="user-email" th:field="*{email}"
                                placeholder="Email. Required field!" required>
                     </div>
                     <div class="form-group">
@@ -203,7 +219,8 @@
 
 <!-- Модальное окно  Delete -->
 
-<div class="modal fade" id="userDeleteDialog" tabindex="-1" role="dialog" aria-labelledby="userDeleteDialogLabel" aria-hidden="true">
+<div class="modal fade" id="userDeleteDialog" tabindex="-1" role="dialog" aria-labelledby="userDeleteDialogLabel"
+     aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -213,41 +230,47 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="deleteForm" >
-                    <input type="hidden" id="userDel-id" >
-                    <div class="form-group">
-                        <label for="user-name">First name:</label>
-                        <input type="text" class="form-control is-invalid" id="userDel-name"
-                               placeholder="First name. Required field!" readonly>
+                <form id="deleteForm">
+                    <input type="hidden" id="userDel-id">
+                    <div class="form-group row">
+                        <label for="userDel-name" class="col-sm-4 col-form-label">First name</label>
+                        <div class="col-sm-5">
+                            <input type="text" class="form-control-plaintext" id="userDel-name" readonly>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="user-lastName">Last name:</label>
-                        <input type="text" class="form-control is-invalid" id="userDel-lastName"
-                               placeholder="Last name. Required field!" readonly>
+                    <div class="form-group row">
+                        <label for="userDel-lastName" class="col-sm-4 col-form-label">Last name</label>
+                        <div class="col-sm-5">
+                            <input type="text" class="form-control-plaintext" id="userDel-lastName" readonly>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="user-email" class="col-form-label">Email:</label>
-                        <input  type="email" class="form-control is-invalid" id="userDel-email"
-                                placeholder="Email. Required field!" readonly>
+                    <div class="form-group row">
+                        <label for="userDel-age" class="col-sm-4 col-form-label">Age:</label>
+                        <div class="col-sm-5">
+                            <input type="text" class="form-control-plaintext" id="userDel-age" readonly>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="user-password" class="col-form-label">Password:</label>
-                        <input type="hidden" class="form-control is-invalid" id="userDel-password"
-                               placeholder="Password. Required field!" readonly>
+                    <div class="form-group row">
+                        <label for="userDel-email" class="col-sm-4 col-form-label">Email:</label>
+                        <div class="col-sm-5">
+                            <input type="email" class="form-control-plaintext" id="userDel-email" readonly>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="user-roles" class="col-form-label">ROLES:</label>
-                        <input type="text" class="form-control" id="userDel-roles" readonly>
+                    <div class="form-group row">
+                        <label for="userDel-roles" class="col-sm-4 col-form-label">ROLES:</label>
+                        <div class="col-sm-5">
+                            <input type="text" class="form-control-plaintext" id="userDel-roles" readonly>
+                        </div>
                     </div>
 
-                    <button id="delete-user-button" class="btn btn-danger" onclick="deleteUser('userDel-id')" >DELETE</button>
+                    <button id="delete-user-button" class="btn btn-danger" onclick="deleteUser('userDel-id')">DELETE
+                    </button>
 
                 </form>
             </div>
         </div>
     </div>
 </div>
-
 
 
 </body>
@@ -282,7 +305,7 @@
 
 <script>
 
-
+    // Функция для запроса на удаление юзера и обновление страницы после успешного удаления
 
     function deleteUser(elementId) {
         const element = document.getElementById(elementId);
@@ -318,6 +341,7 @@
                     modal.find('#user-id').val(data.id)
                     modal.find('#user-name').val(data.username)
                     modal.find('#user-lastName').val(data.lastName)
+                    modal.find('#user-age').val(data.age)
                     modal.find('#user-email').val(data.email)
                     modal.find('#user-password').val(data.password)
                     modal.find('#user-roles').val(data.stringRoles)
@@ -329,6 +353,8 @@
             });
         }
     })
+
+    // Получаем из базы юзера по id для удаления
 
     $('#userDeleteDialog').on('shown.bs.modal', function (event) {
         let button = $(event.relatedTarget) // Button that triggered the modal
@@ -342,6 +368,7 @@
                     modal.find('#userDel-id').val(data.id)
                     modal.find('#userDel-name').val(data.username)
                     modal.find('#userDel-lastName').val(data.lastName)
+                    modal.find('#userDel-age').val(data.age)
                     modal.find('#userDel-email').val(data.email)
                     modal.find('#userDel-roles').val(data.stringRoles)
 
@@ -353,73 +380,39 @@
         }
     })
 
-    // $('#delete-user-button').click(function() {
-    //     let modal = $('#userDeleteDialog')
-    //     // let user = {
-    //     //     username: modal.find('#user-name').val(),
-    //     //     lastName: modal.find('#user-lastName').val(),
-    //     //     email: modal.find('#user-email').val(),
-    //     //     password: modal.find('#user-password').val(),
-    //     //
-    //     // };
-    //     // if (modal.find('#user-id').val()) {
-    //     //     user.id = modal.find('#user-id').val()
-    //     // }
-    //     $.get({
-    //         url: '/ajax/delete/' + userId,
-    //         success: (data) => {
-    //             let modal = $(this)
-    //             modal.find('#userDel-id').val(data.id)
-    //             modal.find('#userDel-name').val(data.username)
-    //             modal.find('#userDel-lastName').val(data.lastName)
-    //             modal.find('#userDel-email').val(data.email)
-    //             modal.find('#userDel-roles').val(data.stringRoles)
-    //
-    //         },
-    //         error: (err) => {
-    //             alert(err);
-    //         }
-    //     });
-    //
-    //     // modal.modal('hide');
-    // });
+    // ======================================================================================
 
-
-
-    // Проверяем валидность чекбоксов и уникальность введенного имени при создании нового пользователя через AJAX
+    // Проверяем валидность чекбоксов и уникальность введенного имени при создании нового пользователя
 
     document.getElementById('registrationForm').addEventListener('submit', function (event) {
         event.preventDefault();
 
-        const username = document.getElementById('firstName').value;
-        const feedback = document.getElementById('usernameFeedback');
+        const email = document.getElementById('email').value;
+        const feedback = document.getElementById('userEmailFeedback');
         const form = this;
 
         if (validateCreateCheckboxes()) {
-            fetch('/ajax/check-username?username=' + username)
+            fetch('/ajax/check-email?email=' + email)
                 .then(response => response.json())
                 .then(data => {
                     if (data.isUnique) {
-                        feedback.textContent = "Имя пользователя доступно.";
-                        feedback.classList.remove('d-block', 'text-danger');
-                        feedback.classList.add('d-block', 'text-success');
                         form.submit();
                     } else {
-                        feedback.textContent = "Имя пользователя уже занято.";
+                        feedback.textContent = "Такой Email уже существует, выберите другой.";
                         feedback.classList.remove('d-block', 'text-success');
                         feedback.classList.add('d-block', 'text-danger');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    feedback.textContent = "Ошибка при проверке имени пользователя.";
+                    feedback.textContent = "Ошибка при проверке email пользователя.";
                     feedback.classList.remove('d-block', 'text-success');
                     feedback.classList.add('d-block', 'text-danger');
                 });
         }
     });
 
-    // Функция для проверки чекбоксов ролей при создании
+    // Функция для проверки чекбоксов ролей при создании юзера
     function validateCreateCheckboxes() {
         const checkboxes = document.querySelectorAll('input[type="checkbox"]');
         let isChecked = false;
@@ -440,6 +433,8 @@
             return true;
         }
     }
+
+    // ======================================================================================
 
     // Проверяем валидность чекбоксов при редактировании юзера
 
@@ -472,6 +467,7 @@
             return true;
         }
     }
+
     // ======================================================================================
 
 

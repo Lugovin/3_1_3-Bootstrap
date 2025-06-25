@@ -6,8 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,10 +24,10 @@ public class AjaxController {
         this.userService = userService;
     }
 
-    @GetMapping("/check-username")
+    @GetMapping("/check-email")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<Map<String, Boolean>> checkUsername(@RequestParam String username) {
-        boolean isUnique = (userService.findUserByNameWithRoles(username) == null);
+    public ResponseEntity<Map<String, Boolean>> checkUsername(@RequestParam String email) {
+        boolean isUnique = (userService.findUserByEmailWithRoles(email) == null);
         Map<String, Boolean> response = new HashMap<>();
         response.put("isUnique", isUnique);
         return ResponseEntity.ok(response);
@@ -50,11 +48,4 @@ public class AjaxController {
         return ResponseEntity.ok(response);
 
     }
-//
-//    @PostMapping
-//    @PreAuthorize("hasAuthority('ADMIN')")
-//    public User create(@RequestBody User user) {
-//        userService.editUser(user);
-//        return user;
-//    }
 }

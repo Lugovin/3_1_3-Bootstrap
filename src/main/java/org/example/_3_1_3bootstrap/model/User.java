@@ -9,6 +9,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.security.core.GrantedAuthority;
@@ -33,18 +35,23 @@ public class User implements UserDetails {
     @NotBlank(message = "Имя не может быть пустым")
     private String name;
 
-    @Column(name = "password")
-    @NotBlank(message = "Пароль не может быть пустым")
-    private String password;
-
     @Column(name = "lastName")
     @NotBlank(message = "Имя не может быть пустым")
     private String lastName;
+
+    @Column(name = "age")
+    @Min(value = 18, message = "Возраст должен быть не менее 18 лет")
+    @Max(value = 100, message = "Возраст не должен превышать 100 лет")
+    private int age;
 
     @Column(name = "email")
     @Email
     @NotEmpty
     private String email;
+
+    @Column(name = "password")
+    @NotBlank(message = "Пароль не может быть пустым")
+    private String password;
 
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Role> roles = new HashSet<>();
@@ -53,11 +60,12 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(String name, String password, String lastName, String email) {
+    public User(String name, String lastName, int age, String email, String password) {
         this.name = name;
-        this.password = password;
         this.lastName = lastName;
+        this.age = age;
         this.email = email;
+        this.password = password;
     }
 
     @Override
@@ -131,4 +139,11 @@ public class User implements UserDetails {
         roles.add(role);
     }
 
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
 }

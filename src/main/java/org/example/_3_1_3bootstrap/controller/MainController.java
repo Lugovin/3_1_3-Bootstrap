@@ -84,12 +84,12 @@ public class MainController {
         return "redirect:/admin";
     }
 
-    @GetMapping("/admin/deleteUser")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public RedirectView deleteUser(@RequestParam Long id) {
-        userService.deleteUserById(id);
-        return new RedirectView("/admin");
-    }
+//    @GetMapping("/admin/deleteUser")
+//    @PreAuthorize("hasAuthority('ADMIN')")
+//    public RedirectView deleteUser(@RequestParam Long id) {
+//        userService.deleteUserById(id);
+//        return new RedirectView("/admin");
+//    }
 
     @GetMapping("/admin/editUser")
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -98,7 +98,6 @@ public class MainController {
         List<Role> roles = roleService.findAllRoles();
         model.addAttribute("user", oldUser);
         model.addAttribute("roles", roles);
-        //return "editUser";
         return "index";
     }
 
@@ -132,10 +131,15 @@ public class MainController {
     public String showUserPage(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.findUserByNameWithRoles(authentication.getName());
+        List<Role> roles = roleService.findAllRoles();
+        String mess = userService.findUserByNameWithRoles(authentication.getName()).getEmail() + " with roles: " + userService.findUserByNameWithRoles(authentication.getName()).getStringRoles();
         model.addAttribute("user", user);
-        model.addAttribute("message", authentication.getName());
+        model.addAttribute("message", mess);
+        model.addAttribute("roles", roles);
         return "user";
     }
+
+
 
     @GetMapping("/logout")
     public String logout(HttpServletRequest request) {

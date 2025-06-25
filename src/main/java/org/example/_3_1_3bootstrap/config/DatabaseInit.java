@@ -37,11 +37,11 @@
 //        roleRepository.save(adminRole);
 //        roleRepository.save(userRole);
 //
-//        User user1 = new User("Bill", "1111", "Gates", "faja@google.com");
+//        User user1 = new User("Bill", "Gates", 60, "faja@google.com","1111");
 //        user1.setPassword(passwordEncoder.encode(user1.getPassword()));
-//        User user2 = new User("John", "0000", "Smith", "ddd@mail.ru");
+//        User user2 = new User("John", "Smith", 33, "ddd@mail.ru", "0000");
 //        user2.setPassword(passwordEncoder.encode(user2.getPassword()));
-//        User user3 = new User("Николай", "9999", "Луговин", "lugovin@gmail.com");
+//        User user3 = new User("Николай", "Луговин", 40, "lugovin@gmail.com", "9999");
 //        user3.setPassword(passwordEncoder.encode(user3.getPassword()));
 //
 //        user1.setRole(adminRole);

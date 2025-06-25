@@ -30,8 +30,8 @@ public class UserService implements UserDetailsService {
 
     @Transactional(readOnly = true)
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findUserByNameWithRoles(username);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userRepository.findUserByEmailWithRoles(email);
     }
 
     @Transactional
@@ -69,6 +69,11 @@ public class UserService implements UserDetailsService {
     @Transactional(readOnly = true)
     public User findUserByIdWithRoles(Long id) {
         return userRepository.findUserByIdWithRoles(id);
+    }
+
+    @Transactional(readOnly = true)
+    public User findUserByEmailWithRoles(String email) {
+        return userRepository.findUserByEmailWithRoles(email);
     }
 
     @Transactional(readOnly = true)
