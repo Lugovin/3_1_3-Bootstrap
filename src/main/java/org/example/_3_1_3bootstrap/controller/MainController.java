@@ -12,12 +12,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
 
@@ -31,7 +28,6 @@ public class MainController {
     public MainController(UserService userService, RoleService roleService) {
         this.userService = userService;
         this.roleService = roleService;
-
     }
 
     @GetMapping({"/"})
@@ -55,73 +51,14 @@ public class MainController {
 
     @PostMapping("/admin/addUser")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public String saveUser(Model model, @Valid @ModelAttribute("user") User user, BindingResult result) {
-        if (result.hasErrors()) {
-            StringBuilder errors = new StringBuilder();
-            result.getFieldErrors().forEach(error ->
-                    errors.append(error.getField() + " - " + error.getDefaultMessage() + ", ")
-            );
-            List<Role> roles = roleService.findAllRoles();
-            model.addAttribute("user", user);
-            model.addAttribute("roles", roles);
-            model.addAttribute("errorMessage", errors);
-            return "index";
-        }
-        if (user.getRoles().size() == 0) {
-            List<Role> roles = roleService.findAllRoles();
-            model.addAttribute("user", user);
-            model.addAttribute("roles", roles);
-            model.addAttribute("errorMessage", "Укажите хотя бы одну роль!");
-            return "index";
-        }
-        if (!userService.addUser(user)) {
-            List<Role> roles = roleService.findAllRoles();
-            model.addAttribute("user", user);
-            model.addAttribute("roles", roles);
-            model.addAttribute("errorMessage", "Такой пользователь существует!");
-            return "index";
-        }
+    public String saveUser(@Valid @ModelAttribute("user") User user) {
+        userService.addUser(user);
         return "redirect:/admin";
-    }
-
-//    @GetMapping("/admin/deleteUser")
-//    @PreAuthorize("hasAuthority('ADMIN')")
-//    public RedirectView deleteUser(@RequestParam Long id) {
-//        userService.deleteUserById(id);
-//        return new RedirectView("/admin");
-//    }
-
-    @GetMapping("/admin/editUser")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public String editUserForm(Model model, @RequestParam Long id) {
-        User oldUser = userService.findUserByNameWithRoles(userService.findUserById(id).getName());
-        List<Role> roles = roleService.findAllRoles();
-        model.addAttribute("user", oldUser);
-        model.addAttribute("roles", roles);
-        return "index";
     }
 
     @PostMapping("/admin/editUser")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public String editUser(Model model, @Valid @ModelAttribute("user") User user, BindingResult result) {
-        if (result.hasErrors()) {
-            StringBuilder errors = new StringBuilder();
-            result.getFieldErrors().forEach(error ->
-                    errors.append(error.getField() + " - " + error.getDefaultMessage() + ", ")
-            );
-            List<Role> roles = roleService.findAllRoles();
-            model.addAttribute("user", user);
-            model.addAttribute("roles", roles);
-            model.addAttribute("errorMessage", errors);
-            return "editUser";
-        }
-        if (user.getRoles().size() == 0) {
-            List<Role> roles = roleService.findAllRoles();
-            model.addAttribute("user", user);
-            model.addAttribute("roles", roles);
-            model.addAttribute("errorMessage", "Укажите хотя бы одну роль!");
-            return "editUser";
-        }
+    public String editUser(@Valid @ModelAttribute("user") User user) {
         userService.editUser(user);
         return "redirect:/admin";
     }
@@ -138,8 +75,6 @@ public class MainController {
         model.addAttribute("roles", roles);
         return "user";
     }
-
-
 
     @GetMapping("/logout")
     public String logout(HttpServletRequest request) {
