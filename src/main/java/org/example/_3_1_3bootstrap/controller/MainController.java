@@ -30,12 +30,7 @@ public class MainController {
         this.roleService = roleService;
     }
 
-    @GetMapping({"/"})
-    public String welcome() {
-        return "/login";
-    }
-
-    @GetMapping({"/admin"})
+    @GetMapping({"/","/admin"})
     @PreAuthorize("hasAuthority('ADMIN')")
     public String usersList(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
