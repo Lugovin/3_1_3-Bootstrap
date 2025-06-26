@@ -57,7 +57,7 @@
                      tabindex="0">
                     <hr class="h1">
                     <h5>ADMIN PANEL</h5>
-                    <table class="table">
+                    <table id="usersTable" class="table">
                         <thead>
                         <tr>
                             <th scope="col">ID</th>
@@ -71,25 +71,17 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="user : ${users}">
-                            <td th:utext="${user.getId}">...</td>
-                            <td th:utext="${user.getName}">...</td>
-                            <td th:utext="${user.getLastName}">...</td>
-                            <td th:utext="${user.getAge}">...</td>
-                            <td th:utext="${user.getEmail}">...</td>
-                            <td th:utext="${user.getStringRoles}">...</td>
-                            <td>
-                                <button id="edit-user" type="button" class="btn btn-primary" data-toggle="modal"
-                                        data-target="#userEditDialog" th:data-userId="${user.getId}">EDIT
-                                </button>
-                            </td>
-
+                        <tr>
+<!--                            <td>-->
+<!--                                <button id="edit-user" type="button" class="btn btn-primary" data-toggle="modal"-->
+<!--                                        data-target="#userEditDialog" th:data-userId="${user.getId}">EDIT-->
+<!--                                </button>-->
+<!--                            </td>-->
                             <td>
                                 <button id="delete-user" type="button" class="btn btn-danger" data-toggle="modal"
                                         data-target="#userDeleteDialog" th:data-userId="${user.getId}">DELETE
                                 </button>
                             </td>
-
                         </tr>
                         </tbody>
                     </table>
@@ -112,7 +104,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="age">Age:</label>
-                                <input type="number" min="18" max="100" class="form-control is-invalid" id="age" th:field="*{age}"
+                                <input type="number" min="18" max="100" class="form-control is-invalid" id="age"
+                                       th:field="*{age}"
                                        placeholder="Age. Required field!" required>
                             </div>
                             <div class="form-group">
@@ -181,7 +174,8 @@
                     </div>
                     <div class="form-group">
                         <label for="user-age">Age:</label>
-                        <input type="number" min="18" max="100" class="form-control is-invalid" id="user-age" th:field="*{age}"
+                        <input type="number" min="18" max="100" class="form-control is-invalid" id="user-age"
+                               th:field="*{age}"
                                placeholder="Age. Required field!" required>
                     </div>
                     <div class="form-group">
@@ -291,7 +285,54 @@
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
 
+
 <script>
+    // Вызов функции при загрузке страницы
+    document.addEventListener('DOMContentLoaded', loadData);
+
+    // Функция для заполнения таблицы юзеров
+    async function loadData() {
+        let response = await fetch('/ajax/users') //<-- получаем "ответ"
+        let data = await response.json()// <-- получаем данные в формает json
+        const table = document.getElementById('usersTable');
+        data.forEach(obj => {
+            const row = table.insertRow();
+            const idCell = row.insertCell();
+            const nameCell = row.insertCell();
+            const lasNameCell = row.insertCell();
+            const ageCell = row.insertCell();
+            const emailCell = row.insertCell();
+            const roleCell = row.insertCell();
+            const buttonEditCell = row.insertCell(-1);
+            const buttonDeleteCell = row.insertCell(-1);
+
+            idCell.textContent = obj.id;
+            nameCell.textContent = obj.name;
+            lasNameCell.textContent = obj.lastName;
+            ageCell.textContent = obj.age;
+            emailCell.textContent = obj.email;
+            roleCell.textContent = obj.stringRoles;
+
+            const buttonEdit = document.createElement('button');
+            buttonEdit.textContent = 'EDIT';
+            buttonEdit.classList.add('btn', 'btn-primary');
+            buttonEdit.addEventListener('click', function() {
+                editUser(obj.id)
+            });
+
+
+            const buttonDelete = document.createElement('button');
+            buttonDelete.textContent = 'DELETE';
+            buttonDelete.classList.add('btn', 'btn-danger');
+
+
+            buttonEditCell.appendChild(buttonEdit);
+            buttonDeleteCell.appendChild(buttonDelete);
+        });
+    }
+
+
+    // ===================================================================================
 
     // Функция для запроса на удаление юзера и обновление страницы после успешного удаления
 
@@ -315,6 +356,23 @@
         }
     }
 
+    // Функция для заполнения окна редактирования пользователя
+    async function editUser(id) {
+        let response = await fetch('/ajax/' + id) //<-- получаем "ответ"
+        let data = await response.json()// <-- получаем данные в формает json
+        const modal = new bootstrap.Modal(document.getElementById('userEditDialog'), {
+            keyboard: false
+        });
+        modal.show()
+        document.getElementById('user-id').value = data.id;
+        document.getElementById('user-name').value = data.name;
+        document.getElementById('user-lastName').value = data.lastName;
+        document.getElementById('user-age').value = data.age;
+        document.getElementById('user-email').value = data.email;
+        document.getElementById('user-password').value = data.password;
+        document.getElementById('user-roles').value = data.stringRoles;
+    }
+
     // Получаем из базы юзера по id для редактирования
 
     $('#userEditDialog').on('shown.bs.modal', function (event) {
@@ -333,7 +391,6 @@
                     modal.find('#user-email').val(data.email)
                     modal.find('#user-password').val(data.password)
                     modal.find('#user-roles').val(data.stringRoles)
-
                 },
                 error: (err) => {
                     alert(err);

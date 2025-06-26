@@ -1,5 +1,6 @@
 package org.example._3_1_3bootstrap.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example._3_1_3bootstrap.model.User;
 import org.example._3_1_3bootstrap.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +36,28 @@ public class AjaxController {
 
     @GetMapping("/{userId}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public User findUserById(@PathVariable long userId) {
-        return userService.findUserByIdWithRoles(userId);
+    public ResponseEntity<String> findUserById(@PathVariable long userId) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonString = null;
+        try {
+            jsonString = objectMapper.writeValueAsString(userService.findUserByIdWithRoles(userId));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok(jsonString);
+    }
+
+    @GetMapping("/users")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<String> findAllUsers() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonString = null;
+        try {
+            jsonString = objectMapper.writeValueAsString(userService.findAllUsersWithRoles());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok(jsonString);
     }
 
     @GetMapping("/delete")
