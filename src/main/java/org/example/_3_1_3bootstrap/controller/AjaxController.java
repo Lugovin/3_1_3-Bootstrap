@@ -20,17 +20,19 @@ import java.util.Map;
 
 
 @RestController
-@RequestMapping("/ajax")
+@RequestMapping("/api")
 public class AjaxController {
 
     private final UserService userService;
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
+    private final ObjectMapper objectMapper;
 
-    public AjaxController(UserService userService, RoleService roleService, PasswordEncoder passwordEncoder) {
+    public AjaxController(UserService userService, RoleService roleService, PasswordEncoder passwordEncoder, ObjectMapper objectMapper) {
         this.userService = userService;
         this.roleService = roleService;
         this.passwordEncoder = passwordEncoder;
+        this.objectMapper = objectMapper;
     }
 
 
@@ -46,7 +48,6 @@ public class AjaxController {
     @GetMapping("/{userId}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> findUserById(@PathVariable long userId) {
-        ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = null;
         try {
             jsonString = objectMapper.writeValueAsString(userService.findUserByIdWithRoles(userId));
@@ -60,7 +61,6 @@ public class AjaxController {
     @GetMapping("/users")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> findAllUsers() {
-        ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = null;
         try {
             jsonString = objectMapper.writeValueAsString(userService.findAllUsersWithRoles());
@@ -73,7 +73,6 @@ public class AjaxController {
     @GetMapping("/roles")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> findAllRoles() {
-        ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = null;
         try {
             jsonString = objectMapper.writeValueAsString(roleService.findAllRoles());

@@ -1,6 +1,7 @@
 package org.example._3_1_3bootstrap.config;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,9 +50,10 @@ public class SecurityConfig {
                         .requestMatchers("/").permitAll()  // Главная страница, доступ у всех.
                         .requestMatchers("/logout").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
-                        .requestMatchers("/ajax/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/**").hasAuthority("ADMIN")
                         .requestMatchers("/user/**").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers("/auth").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/js/**").hasAnyAuthority("USER", "ADMIN")
                         .anyRequest().denyAll()
                 )
                 .formLogin(form -> form
@@ -65,6 +67,11 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(5);
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 }
 

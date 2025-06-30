@@ -1,0 +1,321 @@
+
+// ============= Модальное окно для предупреждений ===========================================
+const modalMessage = new bootstrap.Modal(document.getElementById('modalMessageWindow'), {
+    keyboard: false
+});
+// ===================   Вызов функции заполнения таблицы при загрузке страницы =====================
+document.addEventListener('DOMContentLoaded', loadData);
+// ====================   Функция для заполнения таблицы юзеров и создания новых ==========================
+async function loadData() {
+    const table = document.getElementById('usersTable');
+    const [response1, response2, response3] = await Promise.all([
+        fetch('/api/roles'),
+        fetch('/api/users'),
+        fetch('/auth')
+    ]);
+    let allRoles = await response1.json()// <-- получаем массив объектов Role
+    let data = await response2.json()// <-- получаем массив юзеров
+    let authUser = await response3.json()// <-- получаем аутентифицированного юзера
+
+    let authEmailMess = document.getElementById("authEmailMess");
+    authEmailMess.innerText = authUser.email + " with roles: " + authUser.stringRoles;
+
+    data.forEach(obj => {
+        const row = table.insertRow();
+        const idCell = row.insertCell();
+        const nameCell = row.insertCell();
+        const lasNameCell = row.insertCell();
+        const ageCell = row.insertCell();
+        const emailCell = row.insertCell();
+        const roleCell = row.insertCell();
+        const buttonEditCell = row.insertCell(-1);
+        const buttonDeleteCell = row.insertCell(-1);
+
+        row.id = `userRow${obj.id}`;
+        idCell.textContent = obj.id;
+        nameCell.textContent = obj.name;
+        lasNameCell.textContent = obj.lastName;
+        ageCell.textContent = obj.age;
+        emailCell.textContent = obj.email;
+        roleCell.textContent = obj.stringRoles;
+
+        const buttonEdit = document.createElement('button');
+        buttonEdit.textContent = 'EDIT';
+        buttonEdit.classList.add('btn', 'btn-primary');
+        buttonEdit.addEventListener('click', function () {
+            editUserForm(obj.id)
+        });
+
+        const buttonDelete = document.createElement('button');
+        buttonDelete.textContent = 'DELETE';
+        buttonDelete.classList.add('btn', 'btn-danger');
+        buttonDelete.addEventListener('click', function () {
+            deleteUserForm(obj.id)
+        });
+
+        buttonEditCell.appendChild(buttonEdit);
+        buttonDeleteCell.appendChild(buttonDelete);
+    });
+
+    // заполнение чекбосков ролей во вкладке NEW
+    const container = document.getElementById('rolesCreateContainer');
+    container.innerHTML = '';   // очищаем контейнер с ролями
+    allRoles.forEach(role => {
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `role-${role.roleId}`;
+        checkbox.name = 'role';
+        checkbox.value = role.roleId;
+        const label = document.createElement('label');
+        label.htmlFor = `role-${role.roleId}`;
+        label.textContent = role.roleName;
+
+        container.appendChild(checkbox);
+        container.appendChild(label);
+        container.appendChild(document.createElement('br'));
+    });
+//========================== Обработка нажатия кнопки CREATE ==========================================
+
+    $("#createUserButton").on('click', async function () {
+        console.log("Нажата кнопка отправки юзера для создания")
+        const form = document.getElementById('registrationForm');
+        if (form.checkValidity() && validateCheckboxes('errorCreateMessage')) {
+            const formData = new FormData(form);
+            formData.delete('role')
+            const rolesArr = getRolesFromCheckboxes(allRoles); // это массив ролей для этого пользователя
+            const formObject = Object.fromEntries(formData.entries()); // создаем объект пользователя из формы
+            formObject.roles = rolesArr; // добавляем в него массив ролей этого пользователя
+            const userJson = JSON.stringify(formObject); // конвертим объект в JSON для отправки
+            console.log("Это JSON для создания пользователя ПОСЛЕ добавления массива ролей - " + userJson)
+            console.log("Отправляю юзера для создания")
+            let response = await fetch('/api/createUser', {
+                headers: {'Content-Type': 'application/json'},
+                method: 'POST',
+                body: userJson
+            })
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            let data = await response.json()// <-- получаем данные в формает json
+            console.log('Success:', data);
+            // Обрабатываем успешный ответ
+            // Создаем новую строку таблицы юзеров
+            const row = table.insertRow();
+            const idCell = row.insertCell();
+            const nameCell = row.insertCell();
+            const lasNameCell = row.insertCell();
+            const ageCell = row.insertCell();
+            const emailCell = row.insertCell();
+            const roleCell = row.insertCell();
+            const buttonEditCell = row.insertCell(-1);
+            const buttonDeleteCell = row.insertCell(-1);
+            row.id = `userRow${data.id}`;
+            idCell.textContent = data.id;
+            nameCell.textContent = data.name;
+            lasNameCell.textContent = data.lastName;
+            ageCell.textContent = data.age;
+            emailCell.textContent = data.email;
+            roleCell.textContent = data.stringRoles;
+            const buttonEdit = document.createElement('button');
+            buttonEdit.textContent = 'EDIT';
+            buttonEdit.classList.add('btn', 'btn-primary');
+            buttonEdit.addEventListener('click', function () {
+                editUserForm(data.id)
+                console.log("Нажата кнопка для редактирования в Таблице")
+            });
+
+            const buttonDelete = document.createElement('button');
+            buttonDelete.textContent = 'DELETE';
+            buttonDelete.classList.add('btn', 'btn-danger');
+            buttonDelete.addEventListener('click', function () {
+                deleteUserForm(data.id)
+            });
+
+            buttonEditCell.appendChild(buttonEdit);
+            buttonDeleteCell.appendChild(buttonDelete);
+
+            const buttonTabHome = document.getElementById('nav-home-tab');
+            buttonTabHome.click();  // Переход в список пользователей
+            form.reset();  // Очистка формы
+        } else {
+            modalMessage.show();
+            let modalText = document.getElementById("modalMessage");
+            modalText.innerText = "Вводи данные внимательнее! Бестолочь! Написано же - что куда вводить!";
+        }
+    });
+}
+// ==========================   Функция для удаления пользователя ==========================================
+async function deleteUserForm(id) {
+    let response = await fetch('/api/' + id) //<-- получаем юзера для удаления
+    let data = await response.json()// <-- получаем данные в формает json
+    const modal = new bootstrap.Modal(document.getElementById('userDeleteDialog'), {
+        keyboard: false
+    });
+    modal.show()
+    document.getElementById('userDel-id').value = data.id;
+    document.getElementById('userDel-name').value = data.name;
+    document.getElementById('userDel-lastName').value = data.lastName;
+    document.getElementById('userDel-age').value = data.age;
+    document.getElementById('userDel-email').value = data.email;
+    document.getElementById('userDel-roles').value = data.stringRoles;
+
+    $("#deleteUserButton").one('click', async function () {
+
+        let response = await fetch('/api/delete?id=' + id)
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        let data = await response.json()// <-- получаем данные в формает json
+
+        const row = document.getElementById("userRow" + data.id);
+        row.remove();
+        modal.hide();
+        modalMessage.show();
+        let modalText = document.getElementById("modalMessage");
+        modalText.innerText = "УДАЛЕНО";
+    });
+
+}
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
+// ==================  Пакет для редактирования юзера   ==================================================
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+// Функция для заполнения окна редактирования пользователя
+async function editUserForm(id) {
+    const [response1, response2] = await Promise.all([
+        fetch('/api/roles'),
+        fetch('/api/' + id)
+    ]);
+    let allRoles = await response1.json()// <-- получаем массив объектов Role
+    console.log(allRoles)
+    let user = await response2.json()// <-- получаем объект User
+    console.log(user)
+    let userRoles = user.roles
+    console.log(userRoles)
+    const modal = new bootstrap.Modal(document.getElementById('userEditDialog'), {
+        keyboard: false
+    });
+    modal.show()
+    document.getElementById('user-id').value = user.id;
+    document.getElementById('user-name').value = user.name;
+    document.getElementById('user-lastName').value = user.lastName;
+    document.getElementById('user-age').value = user.age;
+    document.getElementById('user-email').value = user.email;
+    // document.getElementById('user-password').value = user.password;  - Поле Пароль пустое, иначе, если его не изменить, сохранится пароль из каши символов
+    document.getElementById('user-roles').value = user.stringRoles;
+
+    createRoleCheckboxesForEdit(allRoles, userRoles, 'rolesEditContainer');
+
+
+    $("#editUserConfirmButton").one('click', async function () {
+        const form = document.getElementById('editForm');
+        if (form.checkValidity() && validateCheckboxes('errorEditMessage')) {
+            const formData = new FormData(form);
+            formData.delete('role')
+            const rolesArr = getRolesFromCheckboxes(allRoles); // это массив ролей для этого пользователя
+            const formObject = Object.fromEntries(formData.entries()); // создаем объект пользователя из формы
+            formObject.roles = rolesArr; // добавляем в него массив ролей этого пользователя
+            const userJson = JSON.stringify(formObject); // конвертим объект в JSON для отправки
+            let response = await fetch('/api/editUser', {
+                headers: {'Content-Type': 'application/json'},
+                method: 'POST',
+                body: userJson
+            })
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            let data = await response.json()// <-- получаем данные в формает json
+            // Обрабатываем успешный ответ
+            // Обновляем данные в строке измененного юзера
+            const row = document.getElementById("userRow" + data.id);
+            if (row) {
+                row.cells[0].innerHTML = data.id;
+                row.cells[1].innerHTML = data.name;
+                row.cells[2].innerHTML = data.lastName;
+                row.cells[3].innerHTML = data.age;
+                row.cells[4].innerHTML = data.email;
+                row.cells[5].innerHTML = data.stringRoles;
+            } else {
+                console.log("Строка с ID" + data.id + "не найдена");
+            }
+            modal.hide()
+            form.reset();  // Очистка формы
+        } else {
+            modal.hide()
+            await editUserForm(id);
+            modalMessage.show();
+            let modalText = document.getElementById("modalMessage");
+            modalText.innerText = "Вводи данные внимательнее! Бестолочь! Написано же - что куда вводить!";
+        }
+    });
+}
+
+// Вытягивавет роли пользователя из чекбоксов и делает из них массив
+function getRolesFromCheckboxes(allRoles) {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const roles = [];
+    for (const checkbox of checkboxes) {
+        if (checkbox.checked) {
+            allRoles.forEach(role => {
+                if (role.roleId == checkbox.value) {
+                    roles.push(role);
+                }
+            });
+        }
+    }
+    return roles;
+}
+
+//  Функция для создания и заполнения чекбоксов ролей юзера при редактировании
+function createRoleCheckboxesForEdit(allRoles, userRoles, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error(`Container with id "${containerId}" not found.`);
+        return;
+    }
+    container.innerHTML = '';   // очищаем контейнер с ролями
+    allRoles.forEach(role => {
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `role-${role.roleId}`;
+        checkbox.name = 'role';
+        checkbox.value = role.roleId;
+        userRoles.forEach(userRole => {
+            if (userRole.roleName == role.roleName) {
+                checkbox.checked = true;
+            }
+        })
+        const label = document.createElement('label');
+        label.htmlFor = `role-${role.roleId}`;
+        label.textContent = role.roleName;
+
+        container.appendChild(checkbox);
+        container.appendChild(label);
+        container.appendChild(document.createElement('br')); // Добавляем <br> для переноса строки
+    });
+}
+
+// =======================================================================================================
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// ================   Функция для проверки чекбоксов ролей при создании юзера =============================
+function validateCheckboxes(messageId) {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    let isChecked = false;
+    checkboxes.forEach(function (checkbox) {
+        if (checkbox.checked) {
+            isChecked = true;
+        }
+    });
+    const errorMessage = document.getElementById(messageId);
+    if (!isChecked) {
+        errorMessage.textContent = 'Пожалуйста, выберите хотя бы одну роль.';
+        errorMessage.style.display = 'block';
+        return false;
+    } else {
+        errorMessage.style.display = 'none';
+        return true;
+    }
+}
+// ======================================================================================
