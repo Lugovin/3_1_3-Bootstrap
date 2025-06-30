@@ -1,7 +1,6 @@
 package org.example._3_1_3bootstrap.service;
 
 
-
 import org.example._3_1_3bootstrap.model.User;
 import org.example._3_1_3bootstrap.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public boolean addUser(User user) {
-        User hasUser = userRepository.findUserByNameWithRoles(user.getUsername());
+        User hasUser = userRepository.findUserByEmailWithRoles(user.getEmail());
         if (!(hasUser == null)) {
             return false;
         }

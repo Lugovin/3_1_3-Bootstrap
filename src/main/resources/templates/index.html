@@ -1,5 +1,4 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,7 +12,6 @@
 </head>
 <body>
 
-
 <header class="p-3 bg-dark text-white">
     <div class="container">
         <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
@@ -23,7 +21,7 @@
                 </svg>
             </a>
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                <li><a href="#" class="nav-link px-0 text-white" th:utext="${message}">...</a></li>
+                <li><a class="nav-link px-0 text-white" id="authEmailMess">...</a></li>
             </ul>
             <div class="text-end">
                 <td><a href="/logout" class="btn btn-outline-light me-2" tabindex="-1" role="button"
@@ -72,16 +70,6 @@
                         </thead>
                         <tbody>
                         <tr>
-<!--                            <td>-->
-<!--                                <button id="edit-user" type="button" class="btn btn-primary" data-toggle="modal"-->
-<!--                                        data-target="#userEditDialog" th:data-userId="${user.getId}">EDIT-->
-<!--                                </button>-->
-<!--                            </td>-->
-                            <td>
-                                <button id="delete-user" type="button" class="btn btn-danger" data-toggle="modal"
-                                        data-target="#userDeleteDialog" th:data-userId="${user.getId}">DELETE
-                                </button>
-                            </td>
                         </tr>
                         </tbody>
                     </table>
@@ -90,53 +78,49 @@
                      tabindex="0">
                     <div class="container">
                         <h1>New User</h1>
-                        <form id="registrationForm" class="was-validated" th:action="@{/admin/addUser}"
-                              th:object="${user}" method="post">
+                        <form id="registrationForm" class="was-validated" method="post">
+                            <input type="hidden" id="id" name="id" value="">
                             <div class="form-group">
                                 <label for="firstName">First name:</label>
-                                <input class="form-control is-invalid" type="text" id="firstName" th:field="*{name}"
+                                <input class="form-control form-control-sm is-invalid" type="text" id="firstName"
+                                       name="name"
                                        placeholder="First name. Required field!" required>
                             </div>
                             <div class="form-group">
                                 <label for="lastName">Last name:</label>
-                                <input class="form-control is-invalid" type="text" id="lastName" th:field="*{lastName}"
+                                <input class="form-control form-control-sm is-invalid" type="text" id="lastName"
+                                       name="lastName"
                                        placeholder="Last name. Required field!" required>
                             </div>
                             <div class="form-group">
                                 <label for="age">Age:</label>
-                                <input type="number" min="18" max="100" class="form-control is-invalid" id="age"
-                                       th:field="*{age}"
+                                <input type="number" min="18" max="100" class="form-control form-control-sm is-invalid"
+                                       id="age"
+                                       name="age"
                                        placeholder="Age. Required field!" required>
                             </div>
                             <div class="form-group">
                                 <label for="email">Email:</label>
-                                <input class="form-control is-invalid" type="email" id="email" th:field="*{email}"
+                                <input class="form-control form-control-sm is-invalid" type="email" id="email"
+                                       name="email"
                                        placeholder="Email. Required field!" required>
                                 <div class="invalid-feedback" id="userEmailFeedback"></div>
                             </div>
                             <div class="form-group">
                                 <label for="password">Password:</label>
-                                <input class="form-control is-invalid" type="password" id="password"
-                                       th:field="*{password}"
+                                <input class="form-control form-control-sm is-invalid" type="password" id="password"
+                                       name="password"
                                        placeholder="Password. Required field!" required>
                             </div>
-                            <b/>
-                            <p>
+                            <div id="errorCreateMessage" class="text-danger" style="display:none;"></div>
+                            <br/>
                             <div class="form-check">
                                 <label>Roles:
-                                    <input type="checkbox" name="roles"
-                                           th:each="role : ${roles}"
-                                           th:text="${role.roleName}"
-                                           th:value="${role.roleId}"
-                                           th:field="*{roles}"
-                                    />
+                                    <div class="container-fluid" id="rolesCreateContainer">
+                                    </div>
                                 </label>
                             </div>
-                            <div id="errorMessage" class="text-danger" style="display:none;"></div>
-                            <br/>
-                            <br/>
-                            </p>
-                            <button type="submit" class="btn btn-primary">Create</button>
+                            <button type="button" class="btn btn-primary" id="createUserButton">Create</button>
                         </form>
                     </div>
                 </div>
@@ -148,7 +132,7 @@
 
 <!-- Модальное окно  edit -->
 
-<div class="modal fade" id="userEditDialog" tabindex="-1" role="dialog" aria-labelledby="userEditDialogLabel"
+<div class="modal" id="userEditDialog" tabindex="-1" role="dialog" aria-labelledby="userEditDialogLabel"
      aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -159,52 +143,51 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="editForm" class="was-validated" th:action="@{/admin/editUser}"
-                      th:object="${user}" method="post">
-                    <input type="hidden" id="user-id" th:field="*{id}">
+                <form id="editForm" class="was-validated" method="post">
+                    <input type="hidden" id="user-id" name="id">
+                    <input type="hidden" id="user-rolesArray" name="roles">
                     <div class="form-group">
                         <label for="user-name">First name:</label>
-                        <input type="text" class="form-control is-invalid" id="user-name" th:field="*{name}"
+                        <input type="text" class="form-control form-control-sm is-invalid" id="user-name" name="name"
                                placeholder="First name. Required field!" required>
                     </div>
                     <div class="form-group">
                         <label for="user-lastName">Last name:</label>
-                        <input type="text" class="form-control is-invalid" id="user-lastName" th:field="*{lastName}"
+                        <input type="text" class="form-control form-control-sm is-invalid" id="user-lastName"
+                               name="lastName"
                                placeholder="Last name. Required field!" required>
                     </div>
                     <div class="form-group">
                         <label for="user-age">Age:</label>
-                        <input type="number" min="18" max="100" class="form-control is-invalid" id="user-age"
-                               th:field="*{age}"
+                        <input type="number" min="18" max="100" class="form-control form-control-sm is-invalid"
+                               id="user-age" name="age"
                                placeholder="Age. Required field!" required>
                     </div>
                     <div class="form-group">
                         <label for="user-email" class="col-form-label">Email:</label>
-                        <input type="email" class="form-control is-invalid" id="user-email" th:field="*{email}"
+                        <input type="email" class="form-control form-control-sm is-invalid" id="user-email" name="email"
                                placeholder="Email. Required field!" required>
                     </div>
                     <div class="form-group">
                         <label for="user-password" class="col-form-label">Password:</label>
-                        <input type="text" class="form-control is-invalid" id="user-password" th:field="*{password}"
+                        <input type="text" class="form-control form-control-sm is-invalid" id="user-password"
+                               name="password"
                                placeholder="Password. Required field!" required>
                     </div>
                     <div class="form-group">
                         <label for="user-roles" class="col-form-label">ROLES:</label>
-                        <input type="text" class="form-control" id="user-roles" readonly>
-                    </div>
-                    <div class="form-check">
-                        <label>Roles:
-                            <input type="checkbox" name="roles"
-                                   th:each="role : ${roles}"
-                                   th:text="${role.roleName}"
-                                   th:value="${role.roleId}"
-                                   th:field="*{roles}"
-                            />
-                        </label>
+                        <input type="text" class="form-control form-control-sm" id="user-roles" readonly>
                     </div>
                     <div id="errorEditMessage" class="text-danger" style="display:none;"></div>
                     <br/>
-                    <button type="submit" class="btn btn-primary">EDIT</button>
+                    <div class="form-check">
+                        <label>Roles:
+                            <div class="container-fluid" id="rolesEditContainer">
+                            </div>
+                        </label>
+                    </div>
+                    <button id="editUserConfirmButton" type="button" class="btn btn-primary">EDIT
+                    </button>
                 </form>
             </div>
         </div>
@@ -256,11 +239,30 @@
                             <input type="text" class="form-control-plaintext" id="userDel-roles" readonly>
                         </div>
                     </div>
-
-                    <button id="delete-user-button" class="btn btn-danger" onclick="deleteUser('userDel-id')">DELETE
-                    </button>
-
+                    <button type="button" class="btn btn-danger" id="deleteUserButton">DELETE</button>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно  Error -->
+
+<div class="modal fade" id="modalMessageWindow" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" style="background-color: orange;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">Внимание!</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center" id="errorModalBody">
+                <p id="modalMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
             </div>
         </div>
     </div>
@@ -287,14 +289,28 @@
 
 
 <script>
-    // Вызов функции при загрузке страницы
-    document.addEventListener('DOMContentLoaded', loadData);
 
-    // Функция для заполнения таблицы юзеров
+    // ============= Модальное окно для предупреждений ===========================================
+    const modalMessage = new bootstrap.Modal(document.getElementById('modalMessageWindow'), {
+        keyboard: false
+    });
+    // ===================   Вызов функции заполнения таблицы при загрузке страницы =====================
+    document.addEventListener('DOMContentLoaded', loadData);
+    // ====================   Функция для заполнения таблицы юзеров и создания новых ==========================
     async function loadData() {
-        let response = await fetch('/ajax/users') //<-- получаем "ответ"
-        let data = await response.json()// <-- получаем данные в формает json
         const table = document.getElementById('usersTable');
+        const [response1, response2, response3] = await Promise.all([
+            fetch('/ajax/roles'),
+            fetch('/ajax/users'),
+            fetch('/auth')
+        ]);
+        let allRoles = await response1.json()// <-- получаем массив объектов Role
+        let data = await response2.json()// <-- получаем массив юзеров
+        let authUser = await response3.json()// <-- получаем аутентифицированного юзера
+
+        let authEmailMess = document.getElementById("authEmailMess");
+        authEmailMess.innerText = authUser.email + " with roles: " + authUser.stringRoles;
+
         data.forEach(obj => {
             const row = table.insertRow();
             const idCell = row.insertCell();
@@ -306,6 +322,7 @@
             const buttonEditCell = row.insertCell(-1);
             const buttonDeleteCell = row.insertCell(-1);
 
+            row.id = `userRow${obj.id}`;
             idCell.textContent = obj.id;
             nameCell.textContent = obj.name;
             lasNameCell.textContent = obj.lastName;
@@ -316,149 +333,265 @@
             const buttonEdit = document.createElement('button');
             buttonEdit.textContent = 'EDIT';
             buttonEdit.classList.add('btn', 'btn-primary');
-            buttonEdit.addEventListener('click', function() {
-                editUser(obj.id)
+            buttonEdit.addEventListener('click', function () {
+                editUserForm(obj.id)
             });
-
 
             const buttonDelete = document.createElement('button');
             buttonDelete.textContent = 'DELETE';
             buttonDelete.classList.add('btn', 'btn-danger');
-
+            buttonDelete.addEventListener('click', function () {
+                deleteUserForm(obj.id)
+            });
 
             buttonEditCell.appendChild(buttonEdit);
             buttonDeleteCell.appendChild(buttonDelete);
         });
-    }
 
+        // заполнение чекбосков ролей во вкладке NEW
+        const container = document.getElementById('rolesCreateContainer');
+        container.innerHTML = '';   // очищаем контейнер с ролями
+        allRoles.forEach(role => {
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `role-${role.roleId}`;
+            checkbox.name = 'role';
+            checkbox.value = role.roleId;
+            const label = document.createElement('label');
+            label.htmlFor = `role-${role.roleId}`;
+            label.textContent = role.roleName;
 
-    // ===================================================================================
+            container.appendChild(checkbox);
+            container.appendChild(label);
+            container.appendChild(document.createElement('br'));
+        });
+//========================== Обработка нажатия кнопки CREATE ==========================================
 
-    // Функция для запроса на удаление юзера и обновление страницы после успешного удаления
-
-    function deleteUser(elementId) {
-        const element = document.getElementById(elementId);
-        const id = element.value;
-        if (id) {
-            fetch('/ajax/delete?id=' + id)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.isDelete) {
-                        window.location.href = "/admin";
-                    } else {
-                        feedback.textContent = "Удалить не получилось.";
-                    }
+        $("#createUserButton").on('click', async function () {
+            console.log("Нажата кнопка отправки юзера для создания")
+            const form = document.getElementById('registrationForm');
+            if (form.checkValidity() && validateCheckboxes('errorCreateMessage')) {
+                const formData = new FormData(form);
+                formData.delete('role')
+                const rolesArr = getRolesFromCheckboxes(allRoles); // это массив ролей для этого пользователя
+                const formObject = Object.fromEntries(formData.entries()); // создаем объект пользователя из формы
+                formObject.roles = rolesArr; // добавляем в него массив ролей этого пользователя
+                const userJson = JSON.stringify(formObject); // конвертим объект в JSON для отправки
+                console.log("Это JSON для создания пользователя ПОСЛЕ добавления массива ролей - " + userJson)
+                console.log("Отправляю юзера для создания")
+                let response = await fetch('/ajax/createUser', {
+                    headers: {'Content-Type': 'application/json'},
+                    method: 'POST',
+                    body: userJson
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                    feedback.textContent = "Ошибка при удалении пользователя.";
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                let data = await response.json()// <-- получаем данные в формает json
+                console.log('Success:', data);
+                // Обрабатываем успешный ответ
+                // Создаем новую строку таблицы юзеров
+                const row = table.insertRow();
+                const idCell = row.insertCell();
+                const nameCell = row.insertCell();
+                const lasNameCell = row.insertCell();
+                const ageCell = row.insertCell();
+                const emailCell = row.insertCell();
+                const roleCell = row.insertCell();
+                const buttonEditCell = row.insertCell(-1);
+                const buttonDeleteCell = row.insertCell(-1);
+                row.id = `userRow${data.id}`;
+                idCell.textContent = data.id;
+                nameCell.textContent = data.name;
+                lasNameCell.textContent = data.lastName;
+                ageCell.textContent = data.age;
+                emailCell.textContent = data.email;
+                roleCell.textContent = data.stringRoles;
+                const buttonEdit = document.createElement('button');
+                buttonEdit.textContent = 'EDIT';
+                buttonEdit.classList.add('btn', 'btn-primary');
+                buttonEdit.addEventListener('click', function () {
+                    editUserForm(data.id)
+                    console.log("Нажата кнопка для редактирования в Таблице")
                 });
-        }
+
+                const buttonDelete = document.createElement('button');
+                buttonDelete.textContent = 'DELETE';
+                buttonDelete.classList.add('btn', 'btn-danger');
+                buttonDelete.addEventListener('click', function () {
+                    deleteUserForm(data.id)
+                });
+
+                buttonEditCell.appendChild(buttonEdit);
+                buttonDeleteCell.appendChild(buttonDelete);
+
+                const buttonTabHome = document.getElementById('nav-home-tab');
+                buttonTabHome.click();  // Переход в список пользователей
+                form.reset();  // Очистка формы
+            } else {
+                modalMessage.show();
+                let modalText = document.getElementById("modalMessage");
+                modalText.innerText = "Вводи данные внимательнее! Бестолочь! Написано же - что куда вводить!";
+            }
+        });
     }
+        // ==========================   Функция для удаления пользователя ==========================================
+    async function deleteUserForm(id) {
+        let response = await fetch('/ajax/' + id) //<-- получаем юзера для удаления
+        let data = await response.json()// <-- получаем данные в формает json
+        const modal = new bootstrap.Modal(document.getElementById('userDeleteDialog'), {
+            keyboard: false
+        });
+        modal.show()
+        document.getElementById('userDel-id').value = data.id;
+        document.getElementById('userDel-name').value = data.name;
+        document.getElementById('userDel-lastName').value = data.lastName;
+        document.getElementById('userDel-age').value = data.age;
+        document.getElementById('userDel-email').value = data.email;
+        document.getElementById('userDel-roles').value = data.stringRoles;
+
+        $("#deleteUserButton").one('click', async function () {
+
+            let response = await fetch('/ajax/delete?id=' + id)
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            let data = await response.json()// <-- получаем данные в формает json
+
+            const row = document.getElementById("userRow" + data.id);
+            row.remove();
+            modal.hide();
+            modalMessage.show();
+            let modalText = document.getElementById("modalMessage");
+            modalText.innerText = "УДАЛЕНО";
+        });
+
+    }
+    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=
+    // ==================  Пакет для редактирования юзера   ==================================================
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     // Функция для заполнения окна редактирования пользователя
-    async function editUser(id) {
-        let response = await fetch('/ajax/' + id) //<-- получаем "ответ"
-        let data = await response.json()// <-- получаем данные в формает json
+    async function editUserForm(id) {
+        const [response1, response2] = await Promise.all([
+            fetch('/ajax/roles'),
+            fetch('/ajax/' + id)
+        ]);
+        let allRoles = await response1.json()// <-- получаем массив объектов Role
+        console.log(allRoles)
+        let user = await response2.json()// <-- получаем объект User
+        console.log(user)
+        let userRoles = user.roles
+        console.log(userRoles)
         const modal = new bootstrap.Modal(document.getElementById('userEditDialog'), {
             keyboard: false
         });
         modal.show()
-        document.getElementById('user-id').value = data.id;
-        document.getElementById('user-name').value = data.name;
-        document.getElementById('user-lastName').value = data.lastName;
-        document.getElementById('user-age').value = data.age;
-        document.getElementById('user-email').value = data.email;
-        document.getElementById('user-password').value = data.password;
-        document.getElementById('user-roles').value = data.stringRoles;
-    }
+        document.getElementById('user-id').value = user.id;
+        document.getElementById('user-name').value = user.name;
+        document.getElementById('user-lastName').value = user.lastName;
+        document.getElementById('user-age').value = user.age;
+        document.getElementById('user-email').value = user.email;
+       // document.getElementById('user-password').value = user.password;  - Поле Пароль пустое, иначе, если его не изменить, сохранится пароль из каши символов
+        document.getElementById('user-roles').value = user.stringRoles;
 
-    // Получаем из базы юзера по id для редактирования
+        createRoleCheckboxesForEdit(allRoles, userRoles, 'rolesEditContainer');
 
-    $('#userEditDialog').on('shown.bs.modal', function (event) {
-        let button = $(event.relatedTarget) // Button that triggered the modal
-        let userId = button.data('userid') // Extract info from data-* attributes
 
-        if (userId) {
-            $.get({
-                url: '/ajax/' + userId,
-                success: (data) => {
-                    let modal = $(this)
-                    modal.find('#user-id').val(data.id)
-                    modal.find('#user-name').val(data.username)
-                    modal.find('#user-lastName').val(data.lastName)
-                    modal.find('#user-age').val(data.age)
-                    modal.find('#user-email').val(data.email)
-                    modal.find('#user-password').val(data.password)
-                    modal.find('#user-roles').val(data.stringRoles)
-                },
-                error: (err) => {
-                    alert(err);
-                }
-            });
-        }
-    })
-
-    // Получаем из базы юзера по id для удаления
-
-    $('#userDeleteDialog').on('shown.bs.modal', function (event) {
-        let button = $(event.relatedTarget) // Button that triggered the modal
-        let userId = button.data('userid') // Extract info from data-* attributes
-
-        if (userId) {
-            $.get({
-                url: '/ajax/' + userId,
-                success: (data) => {
-                    let modal = $(this)
-                    modal.find('#userDel-id').val(data.id)
-                    modal.find('#userDel-name').val(data.username)
-                    modal.find('#userDel-lastName').val(data.lastName)
-                    modal.find('#userDel-age').val(data.age)
-                    modal.find('#userDel-email').val(data.email)
-                    modal.find('#userDel-roles').val(data.stringRoles)
-
-                },
-                error: (err) => {
-                    alert(err);
-                }
-            });
-        }
-    })
-
-    // ======================================================================================
-
-    // Проверяем валидность чекбоксов и уникальность введенного имени при создании нового пользователя
-
-    document.getElementById('registrationForm').addEventListener('submit', function (event) {
-        event.preventDefault();
-
-        const email = document.getElementById('email').value;
-        const feedback = document.getElementById('userEmailFeedback');
-        const form = this;
-
-        if (validateCreateCheckboxes()) {
-            fetch('/ajax/check-email?email=' + email)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.isUnique) {
-                        form.submit();
-                    } else {
-                        feedback.textContent = "Такой Email уже существует, выберите другой.";
-                        feedback.classList.remove('d-block', 'text-success');
-                        feedback.classList.add('d-block', 'text-danger');
-                    }
+        $("#editUserConfirmButton").one('click', async function () {
+            const form = document.getElementById('editForm');
+            if (form.checkValidity() && validateCheckboxes('errorEditMessage')) {
+                const formData = new FormData(form);
+                formData.delete('role')
+                const rolesArr = getRolesFromCheckboxes(allRoles); // это массив ролей для этого пользователя
+                const formObject = Object.fromEntries(formData.entries()); // создаем объект пользователя из формы
+                formObject.roles = rolesArr; // добавляем в него массив ролей этого пользователя
+                const userJson = JSON.stringify(formObject); // конвертим объект в JSON для отправки
+                let response = await fetch('/ajax/editUser', {
+                    headers: {'Content-Type': 'application/json'},
+                    method: 'POST',
+                    body: userJson
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                    feedback.textContent = "Ошибка при проверке email пользователя.";
-                    feedback.classList.remove('d-block', 'text-success');
-                    feedback.classList.add('d-block', 'text-danger');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                let data = await response.json()// <-- получаем данные в формает json
+                // Обрабатываем успешный ответ
+                // Обновляем данные в строке измененного юзера
+                const row = document.getElementById("userRow" + data.id);
+                if (row) {
+                    row.cells[0].innerHTML = data.id;
+                    row.cells[1].innerHTML = data.name;
+                    row.cells[2].innerHTML = data.lastName;
+                    row.cells[3].innerHTML = data.age;
+                    row.cells[4].innerHTML = data.email;
+                    row.cells[5].innerHTML = data.stringRoles;
+                } else {
+                    console.log("Строка с ID" + data.id + "не найдена");
+                }
+                modal.hide()
+                form.reset();  // Очистка формы
+            } else {
+                modal.hide()
+                await editUserForm(id);
+                modalMessage.show();
+                let modalText = document.getElementById("modalMessage");
+                modalText.innerText = "Вводи данные внимательнее! Бестолочь! Написано же - что куда вводить!";
+            }
+        });
+    }
+
+    // Вытягивавет роли пользователя из чекбоксов и делает из них массив
+    function getRolesFromCheckboxes(allRoles) {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        const roles = [];
+        for (const checkbox of checkboxes) {
+            if (checkbox.checked) {
+                allRoles.forEach(role => {
+                    if (role.roleId == checkbox.value) {
+                        roles.push(role);
+                    }
                 });
+            }
         }
-    });
+        return roles;
+    }
 
-    // Функция для проверки чекбоксов ролей при создании юзера
-    function validateCreateCheckboxes() {
+    //  Функция для создания и заполнения чекбоксов ролей юзера при редактировании
+    function createRoleCheckboxesForEdit(allRoles, userRoles, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.error(`Container with id "${containerId}" not found.`);
+            return;
+        }
+        container.innerHTML = '';   // очищаем контейнер с ролями
+        allRoles.forEach(role => {
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `role-${role.roleId}`;
+            checkbox.name = 'role';
+            checkbox.value = role.roleId;
+            userRoles.forEach(userRole => {
+                if (userRole.roleName == role.roleName) {
+                    checkbox.checked = true;
+                }
+            })
+            const label = document.createElement('label');
+            label.htmlFor = `role-${role.roleId}`;
+            label.textContent = role.roleName;
+
+            container.appendChild(checkbox);
+            container.appendChild(label);
+            container.appendChild(document.createElement('br')); // Добавляем <br> для переноса строки
+        });
+    }
+
+    // =======================================================================================================
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // ================   Функция для проверки чекбоксов ролей при создании юзера =============================
+    function validateCheckboxes(messageId) {
         const checkboxes = document.querySelectorAll('input[type="checkbox"]');
         let isChecked = false;
         checkboxes.forEach(function (checkbox) {
@@ -466,43 +599,7 @@
                 isChecked = true;
             }
         });
-
-        const errorMessage = document.getElementById('errorMessage');
-        if (!isChecked) {
-            errorMessage.textContent = 'Пожалуйста, выберите хотя бы одну роль.';
-            errorMessage.style.display = 'block';
-            return false;
-        } else {
-            errorMessage.style.display = 'none';
-            //alert('Чекбоксы выбраны!');
-            return true;
-        }
-    }
-
-    // ======================================================================================
-
-    // Проверяем валидность чекбоксов при редактировании юзера
-
-    document.getElementById('editForm').addEventListener('submit', function (event) {
-        event.preventDefault();
-        const form = this;
-
-        if (validateEditCheckboxes()) {
-            form.submit();
-        }
-    });
-
-    // Функция для проверки чекбоксов ролей при редактировании
-    function validateEditCheckboxes() {
-        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-        let isChecked = false;
-        checkboxes.forEach(function (checkbox) {
-            if (checkbox.checked) {
-                isChecked = true;
-            }
-        });
-
-        const errorMessage = document.getElementById('errorEditMessage');
+        const errorMessage = document.getElementById(messageId);
         if (!isChecked) {
             errorMessage.textContent = 'Пожалуйста, выберите хотя бы одну роль.';
             errorMessage.style.display = 'block';
@@ -512,9 +609,7 @@
             return true;
         }
     }
-
     // ======================================================================================
-
 
 </script>
 

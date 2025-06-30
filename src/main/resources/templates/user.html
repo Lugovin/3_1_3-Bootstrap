@@ -1,5 +1,4 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -23,7 +22,7 @@
                 </svg>
             </a>
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                <li><a href="#" class="nav-link px-0 text-white" th:utext="${message}">...</a></li>
+                <li><a class="nav-link px-0 text-white" id="authEmailMess">...</a></li>
             </ul>
             <div class="text-end">
                 <td><a href="/logout" class="btn btn-outline-light me-2" tabindex="-1" role="button"
@@ -44,7 +43,7 @@
             <div class="col">
                 <hr class="h1">
                 <h6>About user</h6>
-                <table class="table">
+                <table id="usersTable" class="table">
                     <thead>
                     <tr>
                         <th scope="col">ID</th>
@@ -56,13 +55,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:object="${user}">
-                        <td th:utext="${user.getId}">...</td>
-                        <td th:utext="${user.getName}">...</td>
-                        <td th:utext="${user.getLastName}">...</td>
-                        <td th:utext="${user.getAge}">...</td>
-                        <td th:utext="${user.getEmail}">...</td>
-                        <td th:utext="${user.getStringRoles}">...</td>
+                    <tr>
                     </tr>
                     </tbody>
                 </table>
@@ -74,22 +67,9 @@
 
 </body>
 
-<!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"-->
-<!--        integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"-->
-<!--        crossorigin="anonymous"></script>-->
-<!--<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"-->
-<!--        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"-->
-<!--        crossorigin="anonymous"></script>-->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.min.js"
         integrity="sha384-7qAoOXltbVP82dhxHAUje59V5r2YsVfBafyUDxEdApLPmcdhBPg1DKg1ERo0BZlK"
         crossorigin="anonymous"></script>
-<!--<script src="https://code.jquery.com/jquery-3.3.1.min.js"-->
-<!--        integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT"-->
-<!--        crossorigin="anonymous"></script>-->
-<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"-->
-<!--        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"-->
-<!--        crossorigin="anonymous"></script>-->
-
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"
@@ -102,6 +82,34 @@
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
 
+<script>
 
+    document.addEventListener('DOMContentLoaded', loadData);
+
+    // Функция для заполнения таблицы юзеров
+    async function loadData() {
+        let response = await fetch('/auth') //<-- получаем аутентифицированного пользователя
+        let data = await response.json()// <-- получаем данные в формает json
+        let authEmailMess = document.getElementById("authEmailMess");
+        authEmailMess.innerText = data.email + " with roles: " + data.stringRoles;
+        // Создаем новую строку таблицы юзеров
+        const table = document.getElementById('usersTable');
+        const row = table.insertRow();
+        const idCell = row.insertCell();
+        const nameCell = row.insertCell();
+        const lasNameCell = row.insertCell();
+        const ageCell = row.insertCell();
+        const emailCell = row.insertCell();
+        const roleCell = row.insertCell();
+        row.id = `userRow${data.id}`;
+        idCell.textContent = data.id;
+        nameCell.textContent = data.name;
+        lasNameCell.textContent = data.lastName;
+        ageCell.textContent = data.age;
+        emailCell.textContent = data.email;
+        roleCell.textContent = data.stringRoles;
+    }
+
+</script>
 </html>
 
